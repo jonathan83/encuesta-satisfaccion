@@ -265,17 +265,7 @@ function mostrarConfirmacion() {
 }
 
 function resetFormulario() {
-  seleccion = null;
-  var ids = ['bueno', 'regular', 'malo'];
-  for (var i = 0; i < ids.length; i++) {
-    document.getElementById('btn-' + ids[i]).className = 'face-btn';
-  }
-  document.getElementById('send-btn').textContent = 'Enviar respuesta';
-  document.getElementById('send-btn').className = 'send-btn';
-  document.getElementById('error-msg').style.display = 'none';
-  document.getElementById('feedback-view').style.display = 'none';
-  document.getElementById('feedback-sub').textContent = 'Tu opinión nos ayuda a mejorar.';
-  document.getElementById('form-view').style.display = 'block';
+  location.reload();
 }
 </script>
 </body>
