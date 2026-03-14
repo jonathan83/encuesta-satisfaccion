@@ -274,6 +274,42 @@
     };
     document.getElementById('feedback-icon').textContent = iconos[seleccion];
     document.getElementById('feedback-text').textContent = textos[seleccion];
+
+    // Cuenta atrás y reset
+    let segundos = 3;
+    const sub = document.getElementById('feedback-sub');
+    sub.textContent = `Nuevo formulario en ${segundos}s...`;
+
+    const intervalo = setInterval(() => {
+      segundos--;
+      if (segundos > 0) {
+        sub.textContent = `Nuevo formulario en ${segundos}s...`;
+      } else {
+        clearInterval(intervalo);
+        resetFormulario();
+      }
+    }, 1000);
+  }
+
+  function resetFormulario() {
+    seleccion = null;
+
+    // Resetear botones
+    ['bueno','regular','malo'].forEach(v => {
+      document.getElementById('btn-' + v).className = 'face-btn';
+    });
+
+    // Resetear botón enviar
+    const sendBtn = document.getElementById('send-btn');
+    sendBtn.textContent = 'Enviar respuesta';
+    sendBtn.classList.remove('active');
+
+    // Ocultar error
+    document.getElementById('error-msg').classList.remove('visible');
+
+    // Volver al formulario
+    document.getElementById('feedback-view').classList.remove('visible');
+    document.getElementById('form-view').style.display = 'block';
   }
 </script>
 </body>
