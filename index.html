@@ -151,7 +151,7 @@
     <div class="faces">
 
       <!-- BUENO -->
-      <button class="face-btn" id="btn-bueno" onclick="select('bueno')" aria-label="Bueno">
+      <button class="face-btn" id="btn-bueno" onclick="elegir('bueno')" aria-label="Bueno">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#dcfce7" stroke="#22c55e" stroke-width="2.5"/>
           <circle cx="28" cy="32" r="4.5" fill="#15803d"/>
@@ -162,7 +162,7 @@
       </button>
 
       <!-- REGULAR -->
-      <button class="face-btn" id="btn-regular" onclick="select('regular')" aria-label="Regular">
+      <button class="face-btn" id="btn-regular" onclick="elegir('regular')" aria-label="Regular">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#fef9c3" stroke="#f59e0b" stroke-width="2.5"/>
           <circle cx="28" cy="32" r="4.5" fill="#b45309"/>
@@ -173,7 +173,7 @@
       </button>
 
       <!-- MALO -->
-      <button class="face-btn" id="btn-malo" onclick="select('malo')" aria-label="Malo">
+      <button class="face-btn" id="btn-malo" onclick="elegir('malo')" aria-label="Malo">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#fee2e2" stroke="#ef4444" stroke-width="2.5"/>
           <circle cx="28" cy="32" r="4.5" fill="#b91c1c"/>
@@ -193,7 +193,7 @@
   <div class="feedback" id="feedback-view">
     <div class="feedback-icon" id="feedback-icon">✅</div>
     <p class="feedback-text" id="feedback-text">¡Gracias por tu respuesta!</p>
-    <p class="feedback-sub">Tu opinión nos ayuda a mejorar.</p>
+    <p class="feedback-sub" id="feedback-sub">Tu opinión nos ayuda a mejorar.</p>
   </div>
 
 </div>
@@ -203,7 +203,7 @@
 
   let seleccion = null;
 
-  function select(valor) {
+  function elegir(valor) {
     seleccion = valor;
     ['bueno','regular','malo'].forEach(v => {
       const btn = document.getElementById('btn-' + v);
