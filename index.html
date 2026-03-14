@@ -59,9 +59,9 @@
 
   .face-btn:hover { transform: translateY(-4px); }
 
-  .face-btn.selected-bueno  { border-color: #22c55e; background: #f0fdf4; }
-  .face-btn.selected-regular{ border-color: #f59e0b; background: #fffbeb; }
-  .face-btn.selected-malo   { border-color: #ef4444; background: #fef2f2; }
+  .face-btn.sel-bueno   { border-color: #22c55e; background: #f0fdf4; }
+  .face-btn.sel-regular { border-color: #f59e0b; background: #fffbeb; }
+  .face-btn.sel-malo    { border-color: #ef4444; background: #fef2f2; }
 
   .face-svg { width: 72px; height: 72px; }
 
@@ -69,12 +69,11 @@
     font-size: 13px;
     font-weight: 500;
     color: #64748b;
-    letter-spacing: 0.3px;
   }
 
-  .face-btn.selected-bueno  .face-label { color: #16a34a; }
-  .face-btn.selected-regular .face-label { color: #d97706; }
-  .face-btn.selected-malo   .face-label { color: #dc2626; }
+  .face-btn.sel-bueno   .face-label { color: #16a34a; }
+  .face-btn.sel-regular .face-label { color: #d97706; }
+  .face-btn.sel-malo    .face-label { color: #dc2626; }
 
   .send-btn {
     background: #1a1a2e;
@@ -88,20 +87,26 @@
     transition: all 0.2s ease;
     opacity: 0.35;
     pointer-events: none;
-    letter-spacing: 0.3px;
   }
 
-  .send-btn.active {
+  .send-btn.activo {
     opacity: 1;
     pointer-events: all;
   }
 
-  .send-btn.active:hover {
+  .send-btn.activo:hover {
     background: #2d2d4e;
     transform: translateY(-1px);
   }
 
-  .feedback {
+  #error-msg {
+    display: none;
+    font-size: 13px;
+    color: #ef4444;
+    margin-top: 12px;
+  }
+
+  #feedback-view {
     display: none;
     flex-direction: column;
     align-items: center;
@@ -109,29 +114,18 @@
     padding: 8px 0;
   }
 
-  .feedback.visible { display: flex; }
+  #feedback-icon { font-size: 48px; }
 
-  .feedback-icon { font-size: 48px; }
-
-  .feedback-text {
+  #feedback-text {
     font-size: 17px;
     font-weight: 600;
     color: #1a1a2e;
   }
 
-  .feedback-sub {
+  #feedback-sub {
     font-size: 13px;
     color: #94a3b8;
   }
-
-  .error-msg {
-    display: none;
-    font-size: 13px;
-    color: #ef4444;
-    margin-top: 12px;
-  }
-
-  .error-msg.visible { display: block; }
 
   @media (max-width: 400px) {
     .card { padding: 28px 20px; }
@@ -144,13 +138,9 @@
 <body>
 <div class="card">
 
-  <!-- Formulario -->
   <div id="form-view">
     <p class="question">¿Cómo valoras el servicio recibido?</p>
-
     <div class="faces">
-
-      <!-- BUENO -->
       <button class="face-btn" id="btn-bueno" onclick="elegir('bueno')" aria-label="Bueno">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#dcfce7" stroke="#22c55e" stroke-width="2.5"/>
@@ -160,8 +150,6 @@
         </svg>
         <span class="face-label">Bueno</span>
       </button>
-
-      <!-- REGULAR -->
       <button class="face-btn" id="btn-regular" onclick="elegir('regular')" aria-label="Regular">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#fef9c3" stroke="#f59e0b" stroke-width="2.5"/>
@@ -171,8 +159,6 @@
         </svg>
         <span class="face-label">Regular</span>
       </button>
-
-      <!-- MALO -->
       <button class="face-btn" id="btn-malo" onclick="elegir('malo')" aria-label="Malo">
         <svg class="face-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
           <circle cx="40" cy="40" r="36" fill="#fee2e2" stroke="#ef4444" stroke-width="2.5"/>
@@ -182,135 +168,115 @@
         </svg>
         <span class="face-label">Malo</span>
       </button>
-
     </div>
-
     <button class="send-btn" id="send-btn" onclick="enviar()">Enviar respuesta</button>
-    <p class="error-msg" id="error-msg">No se pudo enviar. Inténtalo de nuevo.</p>
+    <p id="error-msg">No se pudo enviar. Inténtalo de nuevo.</p>
   </div>
 
-  <!-- Confirmación -->
-  <div class="feedback" id="feedback-view">
-    <div class="feedback-icon" id="feedback-icon">✅</div>
-    <p class="feedback-text" id="feedback-text">¡Gracias por tu respuesta!</p>
-    <p class="feedback-sub" id="feedback-sub">Tu opinión nos ayuda a mejorar.</p>
+  <div id="feedback-view">
+    <div id="feedback-icon">✅</div>
+    <p id="feedback-text">¡Gracias por tu respuesta!</p>
+    <p id="feedback-sub">Tu opinión nos ayuda a mejorar.</p>
   </div>
 
 </div>
-
 <script>
-  const FEATURE_SERVICE_URL = 'https://services6.arcgis.com/bqFLhwC3SUAhFsvM/arcgis/rest/services/Satisfaccion/FeatureServer/0';
+var FEATURE_SERVICE_URL = 'https://services6.arcgis.com/bqFLhwC3SUAhFsvM/arcgis/rest/services/Satisfaccion/FeatureServer/0';
+var seleccion = null;
+var intervalo = null;
 
-  let seleccion = null;
-
-  function elegir(valor) {
-    seleccion = valor;
-    ['bueno','regular','malo'].forEach(v => {
-      const btn = document.getElementById('btn-' + v);
-      btn.className = 'face-btn' + (v === valor ? ' selected-' + v : '');
-    });
-    const sendBtn = document.getElementById('send-btn');
-    sendBtn.classList.add('active');
-    document.getElementById('error-msg').classList.remove('visible');
+function elegir(valor) {
+  seleccion = valor;
+  var ids = ['bueno', 'regular', 'malo'];
+  for (var i = 0; i < ids.length; i++) {
+    var btn = document.getElementById('btn-' + ids[i]);
+    btn.className = 'face-btn' + (ids[i] === valor ? ' sel-' + ids[i] : '');
   }
+  document.getElementById('send-btn').className = 'send-btn activo';
+  document.getElementById('error-msg').style.display = 'none';
+}
 
-  async function getToken() {
-    return null;
-  }
+function enviar() {
+  if (!seleccion) return;
 
-  async function enviar() {
-    if (!seleccion) return;
+  var sendBtn = document.getElementById('send-btn');
+  sendBtn.textContent = 'Enviando...';
+  sendBtn.className = 'send-btn';
 
-    const sendBtn = document.getElementById('send-btn');
-    sendBtn.textContent = 'Enviando...';
-    sendBtn.classList.remove('active');
+  var feature = { attributes: { satisfaccion: seleccion, fecha: new Date().getTime() } };
+  var body = 'features=' + encodeURIComponent(JSON.stringify([feature])) + '&f=json';
 
-    const ahora = new Date().getTime();
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', FEATURE_SERVICE_URL + '/addFeatures', true);
+  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-    const feature = {
-      attributes: {
-        satisfaccion: seleccion,
-        fecha: ahora
-      }
-    };
-
-    const body = new URLSearchParams({
-      features: JSON.stringify([feature]),
-      f: 'json'
-    });
-
+  xhr.onload = function() {
     try {
-      const res = await fetch(FEATURE_SERVICE_URL + '/addFeatures', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: body.toString()
-      });
-
-      const data = await res.json();
-
+      var data = JSON.parse(xhr.responseText);
       if (data.addResults && data.addResults[0] && data.addResults[0].success) {
         mostrarConfirmacion();
       } else {
-        throw new Error(JSON.stringify(data));
+        mostrarError(sendBtn);
       }
-    } catch (err) {
-      console.error('Error al enviar:', err);
-      sendBtn.textContent = 'Enviar respuesta';
-      sendBtn.classList.add('active');
-      document.getElementById('error-msg').classList.add('visible');
+    } catch(e) {
+      mostrarError(sendBtn);
     }
+  };
+
+  xhr.onerror = function() {
+    mostrarError(sendBtn);
+  };
+
+  xhr.send(body);
+}
+
+function mostrarError(sendBtn) {
+  sendBtn.textContent = 'Enviar respuesta';
+  sendBtn.className = 'send-btn activo';
+  document.getElementById('error-msg').style.display = 'block';
+}
+
+function mostrarConfirmacion() {
+  document.getElementById('form-view').style.display = 'none';
+  document.getElementById('feedback-view').style.display = 'flex';
+
+  var iconos = { bueno: '😊', regular: '😐', malo: '😞' };
+  var textos = {
+    bueno: '¡Gracias! Nos alegra que estés satisfecho.',
+    regular: 'Gracias por tu respuesta. Seguiremos mejorando.',
+    malo: 'Gracias por tu sinceridad. Trabajaremos en ello.'
+  };
+
+  document.getElementById('feedback-icon').textContent = iconos[seleccion];
+  document.getElementById('feedback-text').textContent = textos[seleccion];
+  document.getElementById('feedback-sub').textContent = 'Nuevo formulario en 3s...';
+
+  var cuenta = 3;
+  if (intervalo) clearInterval(intervalo);
+  intervalo = setInterval(function() {
+    cuenta--;
+    if (cuenta > 0) {
+      document.getElementById('feedback-sub').textContent = 'Nuevo formulario en ' + cuenta + 's...';
+    } else {
+      clearInterval(intervalo);
+      resetFormulario();
+    }
+  }, 1000);
+}
+
+function resetFormulario() {
+  seleccion = null;
+  var ids = ['bueno', 'regular', 'malo'];
+  for (var i = 0; i < ids.length; i++) {
+    document.getElementById('btn-' + ids[i]).className = 'face-btn';
   }
-
-  function mostrarConfirmacion() {
-    document.getElementById('form-view').style.display = 'none';
-    const fb = document.getElementById('feedback-view');
-    fb.classList.add('visible');
-
-    const iconos = { bueno: '😊', regular: '😐', malo: '😞' };
-    const textos = {
-      bueno: '¡Gracias! Nos alegra que estés satisfecho.',
-      regular: 'Gracias por tu respuesta. Seguiremos mejorando.',
-      malo: 'Gracias por tu sinceridad. Trabajaremos en ello.'
-    };
-    document.getElementById('feedback-icon').textContent = iconos[seleccion];
-    document.getElementById('feedback-text').textContent = textos[seleccion];
-
-    // Cuenta atrás y reset
-    let segundos = 3;
-    const sub = document.getElementById('feedback-sub');
-    sub.textContent = `Nuevo formulario en ${segundos}s...`;
-
-    const intervalo = setInterval(() => {
-      segundos--;
-      if (segundos > 0) {
-        sub.textContent = `Nuevo formulario en ${segundos}s...`;
-      } else {
-        clearInterval(intervalo);
-        resetFormulario();
-      }
-    }, 1000);
-  }
-
-  function resetFormulario() {
-    seleccion = null;
-
-    // Resetear botones
-    ['bueno','regular','malo'].forEach(v => {
-      document.getElementById('btn-' + v).className = 'face-btn';
-    });
-
-    // Resetear botón enviar
-    const sendBtn = document.getElementById('send-btn');
-    sendBtn.textContent = 'Enviar respuesta';
-    sendBtn.classList.remove('active');
-
-    // Ocultar error
-    document.getElementById('error-msg').classList.remove('visible');
-
-    // Volver al formulario
-    document.getElementById('feedback-view').classList.remove('visible');
-    document.getElementById('form-view').style.display = 'block';
-  }
+  document.getElementById('send-btn').textContent = 'Enviar respuesta';
+  document.getElementById('send-btn').className = 'send-btn';
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('feedback-view').style.display = 'none';
+  document.getElementById('feedback-sub').textContent = 'Tu opinión nos ayuda a mejorar.';
+  document.getElementById('form-view').style.display = 'block';
+}
 </script>
 </body>
 </html>
